@@ -42,11 +42,33 @@ function ViewBlog() {
     }, [id, navigate])
 
     return (
-       <div className="min-h-screen flex justify-center bg-gray-900">
-            {title}
-            {category}
-            {description}
+   <div className="relative p-4 bg-gray-900">
+    <div className=" mx-auto">
+        <div className="mt-3 bg-gray-900 rounded-b lg:rounded-b-none lg:rounded-r flex flex-col justify-between leading-normal">
+            <div className="">
+                <a href="#" className="text-indigo-600 hover:text-gray-700 transition duration-500 ease-in-out text-sm">
+                    {category}
+                </a>
+                <h1 className=" font-bold text-4xl">{title}</h1>
+                
+                <div className="py-5 text-sm font-regular  flex">
+                    <span className="mr-3 flex flex-row items-center">
+                       
+                    </span>
+
+                
+                </div>
+                <hr />
+
+                <p className="text-base leading-8 my-5">
+                   {description}
+                </p>
+
+                
+            </div>
         </div>
+    </div>
+</div>
 
     )
 

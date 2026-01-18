@@ -36,6 +36,11 @@ function BlogList() {
         setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
     }
     };
+
+    const handleView = (postId) => {
+        console.log({ postId }); 
+        navigate(`/ViewBlog/${postId}`);
+        };
    
 
  
@@ -156,7 +161,9 @@ console.log("Joined data:", posts)
 
               </div>
 
-              <div className="group relative grow">
+              <div className="group relative grow"
+               onClick={() => handleView(post.id)}
+              >
                 <h3 className="mt-3 text-lg/6 font-semibold text-white group-hover:text-gray-300">
                   <a href="#">
                     <span className="absolute inset-0" />
