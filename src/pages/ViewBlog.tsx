@@ -49,18 +49,14 @@ function ViewBlog() {
                 <a href="#" className="text-indigo-600 hover:text-gray-700 transition duration-500 ease-in-out text-sm">
                     {category}
                 </a>
-                <h1 className=" font-bold text-4xl">{title}</h1>
+                <h1 className=" text-white font-bold text-4xl">{title}</h1>
                 
-                <div className="py-5 text-sm font-regular  flex">
-                    <span className="mr-3 flex flex-row items-center">
-                       
-                    </span>
-
+                <div className="py-5 text-sm font-regular flex">
                 
                 </div>
                 <hr />
 
-                <p className="text-base leading-8 my-5">
+                <p className="text-white text-base leading-8 my-5">
                    {description}
                 </p>
 
