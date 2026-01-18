@@ -15,7 +15,7 @@ const Pagination: React.FC<PaginationProps> = ({
 }) => {
   return (
     <div className="flex items-center space-y-2 text-xs sm:space-y-0 sm:space-x-3 sm:flex">
-      <span className="block">
+      <span className="block text-white">
         Page {currentPage} of {totalPages}
       </span>
       <div className="space-x-1">
@@ -28,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({
         >
           <svg
             viewBox="0 0 24 24"
-            stroke="currentColor"
+            stroke="white"
             strokeWidth="2"
             fill="none"
             strokeLinecap="round"
@@ -47,7 +47,7 @@ const Pagination: React.FC<PaginationProps> = ({
         >
           <svg
             viewBox="0 0 24 24"
-            stroke="currentColor"
+            stroke="white"
             strokeWidth="2"
             fill="none"
             strokeLinecap="round"
@@ -58,6 +58,7 @@ const Pagination: React.FC<PaginationProps> = ({
           </svg>
         </button>
       </div>
+      
     </div>
   );
 };

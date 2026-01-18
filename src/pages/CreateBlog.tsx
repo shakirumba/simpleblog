@@ -96,7 +96,7 @@ export default function CreateBlog() {
                     name="category"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full appearance-none rounded-md bg-white/5 py-1.5 pl-3 pr-8 text-base text-white focus:outline-2 focus:outline-indigo-500"
+                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white/5 py-1.5 pr-8 pl-3 text-base text-white outline-1 -outline-offset-1 outline-white/10 *:bg-gray-800 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
                   >
                     <option>Technology</option>
                     <option>Business</option>
