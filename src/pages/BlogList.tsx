@@ -125,7 +125,7 @@ console.log("Joined data:", posts)
                         width="16"
                         height="16"
                         fill="currentColor"
-                        className="bi bi-pencil-square"
+                        className="bi bi-pencil-square cursor-pointer"
                         viewBox="0 0 16 16"
                         onClick={() => handleEdit(post.id)}
                       >
@@ -142,7 +142,7 @@ console.log("Joined data:", posts)
                         width="16"
                         height="16"
                         fill="currentColor"
-                        className="bi bi-trash"
+                        className="bi bi-trash cursor-pointer"
                         viewBox="0 0 16 16"
                         onClick={() => handleDelete(post.id)}
                       >
