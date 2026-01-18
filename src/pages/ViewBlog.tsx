@@ -41,6 +41,8 @@ function ViewBlog() {
       if (id) fetchBlog()
     }, [id, navigate])
 
+     if (fetching) return <div className="text-white text-center mt-24">Loading blog...</div>
+
     return (
    <div className="relative p-4 bg-gray-900">
     <div className=" mx-auto">
