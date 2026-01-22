@@ -45,7 +45,7 @@ function Register() {
           role: "user",
         },
       ]);
-
+    
     if (userError) {
       setError(userError.message);
       setLoading(false);

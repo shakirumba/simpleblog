@@ -17,6 +17,9 @@ export default function EditBlog() {
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+
 
  
   useEffect(() => {
@@ -36,6 +39,7 @@ export default function EditBlog() {
         setTitle(data.title)
         setCategory(data.category)
         setDescription(data.description)
+        setImageUrl(data.image_url)
       }
       setFetching(false)
     }
@@ -47,35 +51,59 @@ export default function EditBlog() {
     navigate('/BlogList', { replace: true })
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setLoading(true)
 
-    const { data: userData, error: authError } = await supabase.auth.getUser()
+  const { data: userData, error: authError } = await supabase.auth.getUser()
 
-    if (authError || !userData.user) {
-      alert('You must be logged in to edit a blog.')
+  if (authError || !userData.user) {
+    alert('You must be logged in to edit a blog.')
+    setLoading(false)
+    return
+  }
+
+  let updatedImageUrl = imageUrl 
+
+  if (imageFile) {
+    const fileName = `${userData.user.id}/${Date.now()}-${imageFile.name}`
+    const { error: uploadError } = await supabase.storage
+      .from('blog-images')
+      .upload(fileName, imageFile, { contentType: imageFile.type, upsert: true })
+
+    if (uploadError) {
+      alert(uploadError.message)
       setLoading(false)
       return
     }
 
-    const { error, data } = await supabase
-      .from('blog_posts')
-      .update({ title, category, description })
-      .eq('id', id)
-      .select() // Return updated row
-
-    setLoading(false)
-
-    if (error) {
-      console.error('Supabase error:', error)
-      alert(`Failed to update blog: ${error.message}`)
-    } else {
-      dispatch(setBlogs(data))
-      alert('Blog updated successfully!')
-      navigate('/BlogList', { replace: true })
-    }
+    const { data } = supabase.storage.from('blog-images').getPublicUrl(fileName)
+    updatedImageUrl = data.publicUrl
   }
+
+  const { error, data } = await supabase
+    .from('blog_posts')
+    .update({
+      title,
+      category,
+      description,
+      image_url: updatedImageUrl, 
+    })
+    .eq('id', id)
+    .select() 
+
+  setLoading(false)
+
+  if (error) {
+    console.error('Supabase error:', error)
+    alert(`Failed to update blog: ${error.message}`)
+  } else {
+    dispatch(setBlogs(data))
+    alert('Blog updated successfully!')
+    navigate('/BlogList', { replace: true })
+  }
+}
+
 
   if (fetching) return <div className="text-white text-center mt-24">Loading blog...</div>
 
@@ -144,6 +172,37 @@ export default function EditBlog() {
                   />
                 </div>
               </div>
+              <div className="sm:col-span-4">
+            <label className="block text-sm font-medium text-white">
+              Cover Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              className="mt-2 block w-full text-sm text-gray-300"
+            />
+
+           {imageFile ? (
+            <div className="mb-4">
+              <img
+                src={URL.createObjectURL(imageFile)} 
+                alt="Blog"
+                className="w-full max-h-64 object-cover rounded-md"
+              />
+            </div>
+          ) : imageUrl ? (
+            <div className="mb-4">
+              <img
+                src={imageUrl}
+                alt="Blog"
+                className="w-full max-h-64 object-cover rounded-md"
+              />
+            </div>
+          ) : null}
+          </div>
+
+
             </div>
           </div>
         </div>

@@ -8,11 +8,12 @@ function BlogList() {
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const user = useSelector((state: RootState) => state.auth.user);
-    console.log( user.id ); 
+    console.log( posts ); 
     
     const handleEdit = (postId) => {
         console.log({ postId }); 

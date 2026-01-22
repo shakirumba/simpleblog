@@ -13,6 +13,7 @@ export default function CreateBlog() {
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('Technology')
   const [description, setDescription] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   
 
@@ -25,39 +26,51 @@ export default function CreateBlog() {
   e.preventDefault()
   setLoading(true)
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    alert('You must be logged in to post a blog.')
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    alert('Login required')
     setLoading(false)
     return
   }
 
-  const author_id = user.id
-  
-  
+  let image_url = null
 
-  const { data, error } = await supabase
+  // upload image
+  if (imageFile) {
+    const fileName = `${Date.now()}-${imageFile.name}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('blog-images')
+      .upload(fileName, imageFile)
+
+    if (uploadError) {
+      alert('Image upload failed')
+      setLoading(false)
+      return
+    }
+
+    image_url = supabase.storage
+      .from('blog-images')
+      .getPublicUrl(fileName).data.publicUrl
+  }
+
+  // insert blog
+  const { error } = await supabase
     .from('blog_posts')
-    .insert([{ title, category, description, author_id }])
-    .select()
+    .insert({
+      title,
+      category,
+      description,
+      author_id: user.id,
+      image_url,
+    })
 
   setLoading(false)
 
-  if (error) {
-    console.error('Supabase error:', error)
-    alert(`Failed to create blog: ${error.message}`)
-  } else {
-    navigate('/BlogList', { replace: true })
-    dispatch(setBlogs(data))
-    setTitle('')
-    setCategory('Technology')
-    setDescription('')
-  }
+  if (error) alert(error.message)
+  else navigate('/BlogList')
 }
+
 
 
   return (
@@ -125,6 +138,28 @@ export default function CreateBlog() {
                   />
                 </div>
               </div>
+             <div className="sm:col-span-4">
+            <label className="block text-sm font-medium text-white">
+              Cover Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              className="mt-2 block w-full text-sm text-gray-300"
+            />
+
+            {imageFile && (
+              <div className="mb-4">  
+                <img
+                  src={URL.createObjectURL(imageFile)}
+                  alt="Blog"
+                  className="w-full max-h-64 object-cover rounded-md"
+                />
+              </div>
+            )}
+          </div>
+
             </div>
           </div>
         </div>
