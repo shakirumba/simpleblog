@@ -59,13 +59,16 @@ function ViewBlog() {
     return (
     <div className="max-w-screen-xl mx-auto p-5 sm:p-8 md:p-12 relative">
       
-    <div
-    className="bg-cover h-64 text-center overflow-hidden"
-    style={{
-      height: "450px",
-      backgroundImage: `url(${imageUrl})`, 
-    }}
-  ></div>
+      {imageUrl && (
+      <div
+        className="bg-cover h-64 text-center overflow-hidden"
+        style={{
+          height: "450px",
+          backgroundImage: `url(${imageUrl})`,
+        }}
+      ></div>
+    )}
+
 
   <div className="max-w-2xl mx-auto">
     <div className="mt-3  rounded-b lg:rounded-b-none lg:rounded-r flex flex-col justify-between leading-normal">

@@ -1,7 +1,8 @@
 import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 import { ChevronDownIcon } from '@heroicons/react/16/solid'
+import { XCircleIcon } from '@heroicons/react/24/solid';
 
-import { useState } from 'react'
+import { useState, useRef  } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { setBlogs } from '../features/blogs/blogSlice'
@@ -15,6 +16,7 @@ export default function CreateBlog() {
   const [description, setDescription] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
 
   const handlecancel = async () => {    
@@ -140,22 +142,37 @@ export default function CreateBlog() {
             <label className="block text-sm font-medium text-white">
               Cover Image
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-              className="mt-2 block w-full text-sm text-gray-300"
-            />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}  
+          onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+          className="mt-2 block w-full text-sm text-gray-300"
+        />
 
-            {imageFile && (
-              <div className="mb-4">  
-                <img
-                  src={URL.createObjectURL(imageFile)}
-                  alt="Blog"
-                  className="w-full max-h-64 object-cover rounded-md"
-                />
-              </div>
-            )}
+        {imageFile && (
+          <div className="relative mb-4">
+            <img
+              src={URL.createObjectURL(imageFile)}
+              alt="Blog"
+              className="w-full max-h-64 object-cover rounded-md"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setImageFile(null); 
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = ''; 
+                }
+              }}
+              className="absolute top-2 right-2 bg-gray-800 bg-opacity-70 p-1 rounded-full hover:bg-gray-700"
+            >
+              <XCircleIcon className="w-6 h-6 text-red-500" />
+            </button>
+          </div>
+        )}
+
+
           </div>
 
             </div>

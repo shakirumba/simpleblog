@@ -1,7 +1,8 @@
 import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 import { ChevronDownIcon } from '@heroicons/react/16/solid'
+import { XCircleIcon } from '@heroicons/react/24/solid';
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { setBlogs } from '../features/blogs/blogSlice'
@@ -19,6 +20,7 @@ export default function EditBlog() {
   const [fetching, setFetching] = useState(true)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
 
  
@@ -173,34 +175,52 @@ export default function EditBlog() {
                 </div>
               </div>
               <div className="sm:col-span-4">
-            <label className="block text-sm font-medium text-white">
-              Cover Image
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-              className="mt-2 block w-full text-sm text-gray-300"
-            />
+              <label className="block text-sm font-medium text-white">
+                Cover Image
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef} // useRef hook
+                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                className="mt-2 block w-full text-sm text-gray-300"
+              />
 
-           {imageFile ? (
-            <div className="mb-4">
-              <img
-                src={URL.createObjectURL(imageFile)} 
-                alt="Blog"
-                className="w-full max-h-64 object-cover rounded-md"
-              />
+              {imageFile ? (
+                <div className="relative mb-4">
+                  <img
+                    src={URL.createObjectURL(imageFile)}
+                    alt="Blog"
+                    className="w-full max-h-64 object-cover rounded-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageFile(null); // remove selected file
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    className="absolute top-2 right-2 bg-gray-800 bg-opacity-70 p-1 rounded-full hover:bg-gray-700"
+                  >
+                    <XCircleIcon className="w-6 h-6 text-red-500" />
+                  </button>
+                </div>
+              ) : imageUrl ? (
+                <div className="mb-4 relative">
+                  <img
+                    src={imageUrl}
+                    alt="Blog"
+                    className="w-full max-h-64 object-cover rounded-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setImageUrl(null)} 
+                    className="absolute top-2 right-2 bg-gray-800 bg-opacity-70 p-1 rounded-full hover:bg-gray-700"
+                  >
+                    <XCircleIcon className="w-6 h-6 text-red-500" />
+                  </button>
+                </div>
+              ) : null}
             </div>
-          ) : imageUrl ? (
-            <div className="mb-4">
-              <img
-                src={imageUrl}
-                alt="Blog"
-                className="w-full max-h-64 object-cover rounded-md"
-              />
-            </div>
-          ) : null}
-          </div>
 
 
             </div>
