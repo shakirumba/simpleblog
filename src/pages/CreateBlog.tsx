@@ -35,7 +35,6 @@ export default function CreateBlog() {
 
   let image_url = null
 
-  // upload image
   if (imageFile) {
     const fileName = `${Date.now()}-${imageFile.name}`
 
@@ -54,7 +53,6 @@ export default function CreateBlog() {
       .getPublicUrl(fileName).data.publicUrl
   }
 
-  // insert blog
   const { error } = await supabase
     .from('blog_posts')
     .insert({

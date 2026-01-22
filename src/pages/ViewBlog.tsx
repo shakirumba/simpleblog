@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux'
 import { setBlogs } from '../features/blogs/blogSlice'
 import { supabase } from '../lib/supabaseClient'
 import { useNavigate, useParams } from 'react-router-dom'
+import BlogComments from '../components/BlogComments';
 
 
 function ViewBlog() {
@@ -57,6 +58,7 @@ function ViewBlog() {
 
     return (
     <div className="max-w-screen-xl mx-auto p-5 sm:p-8 md:p-12 relative">
+      
     <div
     className="bg-cover h-64 text-center overflow-hidden"
     style={{
@@ -94,6 +96,11 @@ function ViewBlog() {
         <p className="text-base text-white leading-8 my-5">
           {description}
         </p>
+
+         <div className="relative p-4 bg-gray-900">
+      {/* your blog content */}
+      <BlogComments blogId={id} /> {/* pass the blog ID */}
+    </div>
 
         
       </div>
