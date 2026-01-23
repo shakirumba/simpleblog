@@ -65,6 +65,9 @@ function ViewBlog() {
         style={{
           height: "450px",
           backgroundImage: `url(${imageUrl})`,
+          backgroundSize: "cover",       
+          backgroundPosition: "center",  
+          backgroundRepeat: "no-repeat", 
         }}
       ></div>
     )}
@@ -101,8 +104,8 @@ function ViewBlog() {
         </p>
 
          <div className="relative p-4 bg-gray-900">
-      {/* your blog content */}
-      <BlogComments blogId={id} /> {/* pass the blog ID */}
+      
+      <BlogComments blogId={id} /> 
     </div>
 
         

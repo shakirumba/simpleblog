@@ -155,11 +155,6 @@ console.log("Joined data:", posts)
                     </>
                   )}
 
-               
-
-               
- 
-
               </div>
 
               <div className="group relative grow"

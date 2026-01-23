@@ -1,11 +1,60 @@
 import { useState, useEffect, useRef  } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
+
 export default function BlogComments({ blogId }) {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [commentImage, setCommentImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editedContent, setEditedContent] = useState('');
+  const [currentUserId, setCurrentUserId] = useState(null);
+ 
+      useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+          setCurrentUserId(data?.user?.id ?? null);
+        });
+      }, []);
+      
+  const handleEdit = async (commentId) => {
+  if (!editedContent.trim()) return;
+
+  const { data, error } = await supabase
+    .from('comments')
+    .update({ content: editedContent })
+    .eq('id', commentId)
+    .select();
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+    setComments((prev) =>
+      prev.map((c) => (c.id === commentId ? data[0] : c))
+    );
+
+    setEditingCommentId(null);
+    setEditedContent('');
+  };
+
+  const handleDelete = async (commentId) => {
+  const confirmed = confirm('Delete this comment?');
+  if (!confirmed) return;
+
+  const { error } = await supabase
+    .from('comments')
+    .delete()
+    .eq('id', commentId);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  setComments((prev) => prev.filter((c) => c.id !== commentId));
+};
   
     const fileInputRef = useRef<HTMLInputElement>(null);
  
@@ -107,9 +156,33 @@ export default function BlogComments({ blogId }) {
               />
               <p className="text-white font-semibold">{c.users?.username || 'Anonymous'}:</p>
             </div>
-            <p className="text-gray-200 mt-1">{c.content}</p>
+           {editingCommentId === c.id ? (
+              <div className="mt-2">
+                <input
+                  value={editedContent}
+                  onChange={(e) => setEditedContent(e.target.value)}
+                  className="w-full px-2 py-1 rounded bg-gray-700 text-white"
+                />
+                <div className="flex gap-3 mt-2 text-xs">
+                  <button
+                    onClick={() => handleEdit(c.id)}
+                    className="text-green-400"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingCommentId(null)}
+                    className="text-gray-400"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-200 mt-1">{c.content}</p>
+            )}
 
-            {/* Comment image */}
+
             {c.image_url && (
               <img
                 src={c.image_url}
@@ -121,11 +194,30 @@ export default function BlogComments({ blogId }) {
             <span className="text-gray-400 text-xs block mt-1">
               {new Date(c.created_at).toLocaleString()}
             </span>
+            {currentUserId === c.user_id && (
+            <div className="flex gap-3 mt-1 text-xs">
+              <button
+                onClick={() => {
+                  setEditingCommentId(c.id);
+                  setEditedContent(c.content);
+                }}
+                className="text-blue-400 hover:underline"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(c.id)}
+                className="text-red-400 hover:underline"
+              >
+                Delete
+              </button>
+            </div>
+          )}
+
           </div>
         ))}
       </div>
 
-      {/* Add comment */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <input
           type="text"
