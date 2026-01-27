@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef  } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { XCircleIcon } from '@heroicons/react/24/solid';
-
+import { CameraIcon } from '@heroicons/react/24/outline';
 
 export default function BlogComments({ blogId }) {
   const [comments, setComments] = useState([]);
@@ -12,46 +12,84 @@ export default function BlogComments({ blogId }) {
   const [editedContent, setEditedContent] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
   const [removeImage, setRemoveImage] = useState(false);
+  const [editedImage, setEditedImage] = useState<{ [key: string]: File | null }>({});
 
- 
+    const handleEditImageChange = (commentId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setEditedImage((prev) => ({
+      ...prev,
+      [commentId]: file,
+    }));
+    if (removeImage === commentId) setRemoveImage(false);
+  };
+
       useEffect(() => {
         supabase.auth.getUser().then(({ data }) => {
           setCurrentUserId(data?.user?.id ?? null);
         });
       }, []);
       
-  const handleEdit = async (commentId) => {
-  if (!editedContent.trim()) return;
+  const handleEdit = async (commentId: string) => {
+  if (!editedContent.trim() && !editedImage[commentId] && !removeImage) return;
 
-  const updates = {
-    content: editedContent,
-  };
+  setLoading(true);
 
-  if (removeImage) {
+  const updates: { content?: string; image_url?: string | null } = {};
+
+  if (editedContent.trim()) updates.content = editedContent;
+
+  if (removeImage === commentId) {
     updates.image_url = null;
   }
-        console.log(updates)
 
+  if (editedImage[commentId] instanceof File) {
+    const file = editedImage[commentId]!;
+    const fileName = `${Date.now()}-${file.name}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('comment-images')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      alert('Failed to upload image.');
+      console.error(uploadError);
+      setLoading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('comment-images')
+      .getPublicUrl(fileName);
+
+    updates.image_url = urlData.publicUrl;
+  }
 
   const { data, error } = await supabase
     .from('comments')
     .update(updates)
     .eq('id', commentId)
-    .select();
+    .select(`
+      *,
+      users(auth_id, username, role)
+    `);
 
   if (error) {
     alert(error.message);
+    setLoading(false);
     return;
   }
 
-    setComments((prev) =>
-      prev.map((c) => (c.id === commentId ? data[0] : c))
-    );
+  setComments((prev) =>
+    prev.map((c) => (c.id === commentId ? data[0] : c))
+  );
 
-    setEditingCommentId(null);
-    setEditedContent('');
-    setRemoveImage(false);
-  };
+  setEditingCommentId(null);
+  setEditedContent('');
+  setEditedImage((prev) => ({ ...prev, [commentId]: null }));
+  setRemoveImage(false);
+  setLoading(false);
+};
+
 
   const handleDelete = async (commentId) => {
   const confirmed = confirm('Delete this comment?');
@@ -171,11 +209,26 @@ export default function BlogComments({ blogId }) {
             </div>
            {editingCommentId === c.id ? (
               <div className="mt-2">
+                <div className="relative w-full">
                 <input
                   value={editedContent}
                   onChange={(e) => setEditedContent(e.target.value)}
                   className="w-full px-2 py-1 rounded bg-gray-700 text-white"
                 />
+                {(!c.image_url || removeImage === c.id || !editedImage) && (
+                 <CameraIcon 
+                 onClick={() => fileInputRef.current.click()}
+                 className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 cursor-pointer" />
+                 )}
+                 <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={(e) => handleEditImageChange(c.id, e)}
+                />
+                </div>
+                
                 <div className="flex gap-3 mt-2 text-xs">
                   <button
                     onClick={() => handleEdit(c.id)}
@@ -184,7 +237,11 @@ export default function BlogComments({ blogId }) {
                     Save
                   </button>
                   <button
-                    onClick={() => setEditingCommentId(null)}
+                    onClick={() => {
+                      setEditingCommentId(null);
+                      setEditedContent('');
+                      setRemoveImage(false);
+                    }}
                     className="text-gray-400"
                   >
                     Cancel
@@ -195,8 +252,37 @@ export default function BlogComments({ blogId }) {
               <p className="text-gray-200 mt-1">{c.content}</p>
             )}
 
+           {(editedImage[c.id] || (c.image_url && removeImage !== c.id)) && (
+            <div className="relative mb-4 mt-2 w-48 h-48">
+              <img
+                src={
+                  editedImage[c.id]
+                    ? URL.createObjectURL(editedImage[c.id]!)
+                    : c.image_url
+                }
+                alt="Comment attachment"
+                className="mt-2 w-48 h-48 object-cover rounded-md"
+              />
+              {editingCommentId === c.id && (
+              <button
+                type="button"
+                onClick={() => {
+                if (editedImage[c.id]) {
+                  setEditedImage((prev) => ({ ...prev, [c.id]: null }));
+                } else {
+                  setRemoveImage(c.id);
+                }
+              }}
+                className="absolute top-2 right-2 bg-gray-800 bg-opacity-70 p-1 rounded-full hover:bg-gray-700"
+              >
+                <XCircleIcon className="w-5 h-5 text-red-500" />
+              </button>
+              )}
+            </div>
+          )}
 
-            {c.image_url && !removeImage && (
+
+            {/* {c.image_url && removeImage !== c.id && (
               <div className="relative mb-4 mt-2 w-48 h-48">
               <img
                 src={c.image_url}
@@ -206,16 +292,14 @@ export default function BlogComments({ blogId }) {
               {editingCommentId === c.id && (
                 <button
                   type="button"
-                  onClick={() => setRemoveImage(true)}
+                  onClick={() => setRemoveImage(c.id)}
                   className="absolute top-2 right-2 bg-gray-800 bg-opacity-70 p-1 rounded-full hover:bg-gray-700"
                 >
                   <XCircleIcon className="w-5 h-5 text-red-500" />
                 </button>
               )}
               </div>
-             
-
-            )}
+            )} */}
 
             <span className="text-gray-400 text-xs block mt-1">
               {new Date(c.created_at).toLocaleString()}
