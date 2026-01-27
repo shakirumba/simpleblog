@@ -196,7 +196,7 @@ export default function EditBlog() {
                   <button
                     type="button"
                     onClick={() => {
-                      setImageFile(null); // remove selected file
+                      setImageFile(null); 
                       if (fileInputRef.current) fileInputRef.current.value = '';
                     }}
                     className="absolute top-2 right-2 bg-gray-800 bg-opacity-70 p-1 rounded-full hover:bg-gray-700"

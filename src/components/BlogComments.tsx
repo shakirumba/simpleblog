@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef  } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { XCircleIcon } from '@heroicons/react/24/solid';
 
 
 export default function BlogComments({ blogId }) {
@@ -10,6 +11,8 @@ export default function BlogComments({ blogId }) {
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editedContent, setEditedContent] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [removeImage, setRemoveImage] = useState(false);
+
  
       useEffect(() => {
         supabase.auth.getUser().then(({ data }) => {
@@ -20,9 +23,19 @@ export default function BlogComments({ blogId }) {
   const handleEdit = async (commentId) => {
   if (!editedContent.trim()) return;
 
+  const updates = {
+    content: editedContent,
+  };
+
+  if (removeImage) {
+    updates.image_url = null;
+  }
+        console.log(updates)
+
+
   const { data, error } = await supabase
     .from('comments')
-    .update({ content: editedContent })
+    .update(updates)
     .eq('id', commentId)
     .select();
 
@@ -37,6 +50,7 @@ export default function BlogComments({ blogId }) {
 
     setEditingCommentId(null);
     setEditedContent('');
+    setRemoveImage(false);
   };
 
   const handleDelete = async (commentId) => {
@@ -144,7 +158,6 @@ export default function BlogComments({ blogId }) {
     <div className="mt-8">
       <h3 className="text-white font-bold text-xl mb-4">Comments</h3>
 
-      {/* Comment list */}
       <div className="mb-4 space-y-3">
         {comments.map((c) => (
           <div key={c.id} className="p-3 bg-gray-800 rounded">
@@ -183,12 +196,25 @@ export default function BlogComments({ blogId }) {
             )}
 
 
-            {c.image_url && (
+            {c.image_url && !removeImage && (
+              <div className="relative mb-4 mt-2 w-48 h-48">
               <img
                 src={c.image_url}
                 alt="Comment attachment"
                 className="mt-2 w-48 h-48 object-cover rounded-md"
               />
+              {editingCommentId === c.id && (
+                <button
+                  type="button"
+                  onClick={() => setRemoveImage(true)}
+                  className="absolute top-2 right-2 bg-gray-800 bg-opacity-70 p-1 rounded-full hover:bg-gray-700"
+                >
+                  <XCircleIcon className="w-5 h-5 text-red-500" />
+                </button>
+              )}
+              </div>
+             
+
             )}
 
             <span className="text-gray-400 text-xs block mt-1">
