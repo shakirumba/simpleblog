@@ -241,6 +241,7 @@ export default function BlogComments({ blogId }) {
                       setEditingCommentId(null);
                       setEditedContent('');
                       setRemoveImage(false);
+                      setEditedImage((prev) => ({ ...prev, [c.id]: null }));
                     }}
                     className="text-gray-400"
                   >
