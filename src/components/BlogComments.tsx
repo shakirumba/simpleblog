@@ -282,26 +282,6 @@ export default function BlogComments({ blogId }) {
             </div>
           )}
 
-
-            {/* {c.image_url && removeImage !== c.id && (
-              <div className="relative mb-4 mt-2 w-48 h-48">
-              <img
-                src={c.image_url}
-                alt="Comment attachment"
-                className="mt-2 w-48 h-48 object-cover rounded-md"
-              />
-              {editingCommentId === c.id && (
-                <button
-                  type="button"
-                  onClick={() => setRemoveImage(c.id)}
-                  className="absolute top-2 right-2 bg-gray-800 bg-opacity-70 p-1 rounded-full hover:bg-gray-700"
-                >
-                  <XCircleIcon className="w-5 h-5 text-red-500" />
-                </button>
-              )}
-              </div>
-            )} */}
-
             <span className="text-gray-400 text-xs block mt-1">
               {new Date(c.created_at).toLocaleString()}
             </span>

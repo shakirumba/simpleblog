@@ -9,7 +9,6 @@ function BlogList() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   
-
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const user = useSelector((state: RootState) => state.auth.user);
@@ -94,7 +93,7 @@ console.log("Joined data:", posts)
   };
 
   return (
-    <div className="bg-gray-900 py-24 sm:py-32">
+    <div className="bg-gray-900 py-24 sm:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:mx-0">
           <h2 className="text-4xl font-semibold tracking-tight text-pretty text-white sm:text-5xl">From the blog</h2>
@@ -160,6 +159,24 @@ console.log("Joined data:", posts)
               <div className="group relative grow"
                onClick={() => handleView(post.id)}
               >
+              <img
+              src={post.image_url}
+              alt={post.title}
+              className="
+                pointer-events-none
+                absolute
+                w-48
+                rounded-lg
+                shadow-lg
+                opacity-0
+                scale-95
+                transition
+                duration-300
+                group-hover:opacity-100
+                group-hover:scale-100
+              "
+            />
+
                 <h3 className="mt-3 text-lg/6 font-semibold text-white group-hover:text-gray-300">
                   <a href="#">
                     <span className="absolute inset-0" />
